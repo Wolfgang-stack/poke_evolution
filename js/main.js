@@ -5,7 +5,7 @@ async function getFetch() {
   const poke2 = document.querySelector("#poke2").value;
   const url = "https://pokeapi.co/api/v2/pokemon/" + poke2;
   let newDiv = document.createElement("div");
-  newDiv.classList.add("container", "containerCard");
+  newDiv.classList.add("container", 'containerCard');
   document.querySelector("body").appendChild(newDiv);
   //original pokemon
   const res1 = await fetch(url);
@@ -18,7 +18,7 @@ async function getFetch() {
   const theName = pokedex.name;
   let pokename = document.createElement("h4");
   pokename.innerText = `${theName}'s chain looks like... `;
-  pokename.classList.add("wideText");
+  pokename.classList.add('wideText')
   newDiv.append(pokename);
   const res3 = await fetch(pokedex.evolution_chain.url);
   const evolutionChain = await res3.json();
@@ -36,26 +36,38 @@ async function getFetch() {
     names.push(evolutionChain.chain.species.name);
     pokeImages.push(two.sprites.front_default);
     console.log(evolutionChain);
-    if (evolutionChain.chain.evolves_to.length > 0) {
-      let divergence1 = [];
-      //console.log(evolutionChain.chain.evolves_to);
-      evolutionChain.chain.evolves_to.forEach((index) => {
-        console.log(index)
-        divergence1.push(index.species.name);
-        multiplePokes(index.species.name, pokeImages);
-      });
-      names.push(divergence1.join(" or "));
-      if (evolutionChain.chain.evolves_to[0].evolves_to.length > 0) {
-        let divergence2 = [];
-        console.log(evolutionChain.chain.evolves_to[0].evolves_to);
-        evolutionChain.chain.evolves_to[0].evolves_to.forEach((index) => {
-          divergence2.push(index.species.name);
-          multiplePokes(index.species.name, pokeImages);
-        });
-        names.push(divergence2.join(" or "));
-      }
-    }
 
+    //*** IF THE POKEMON HAS AN EVOLUTION
+    if (evolutionChain.chain.evolves_to.length > 0) {
+      let divergence1 = []
+
+      //FOR EACH EVOLUTION ANOTHER FETCH IS NECESSARY TO RETRIEVE THE IMAGE URL
+      evolutionChain.chain.evolves_to.forEach(index => {
+        //IF THERE IS MORE THAN ONE (SEE EEVEE) MULTIPLE FETCHS WILL BE CALLED
+        divergence1.push(index.species.name);
+        multiplePokes(
+        index.species.name,
+        pokeImages
+      );})
+      names.push(divergence1.join(' or '))
+
+      //***IF THAT EVOLUTION HAS AN EVOLUTION */
+      if (evolutionChain.chain.evolves_to[0].evolves_to.length > 0) {
+      let divergence2 = []
+      evolutionChain.chain.evolves_to[0].evolves_to.forEach(index => {
+        //IF THERE IS MORE THAN ONE (SEE ODDISH) MULTIPLE FETCHS WILL BE CALLED
+        divergence2.push(index.species.name)
+        multiplePokes(
+        index.species.name,
+        pokeImages
+      );
+      })
+      names.push(divergence2.join(' or '))
+    
+    }
+    }
+    
+    //THIS IS CLUNKY AND ANNOYING
     setTimeout(() => {
       pokeImages.forEach((img) => {
         let pokeImg = document.createElement("img");
@@ -67,13 +79,16 @@ async function getFetch() {
   }
 }
 
+//WTF AM I DOING HERE
 async function multiplePokes(name, array) {
   let one = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
   let two = await one.json();
-
   array.push(two.sprites.front_default);
+  console.log(two.name)
 }
 
+
+//NON ASYNC FUNCTION THAT WORKS FINE FOR ONE REQUEST
 function getPokeImage(pokemon, div) {
   fetch(`https://pokeapi.co/api/v2/pokemon/${pokemon}`)
     .then((res) => res.json()) // parse response as JSON
