@@ -10,6 +10,10 @@
 /******************************************
 /* LAYOUT
 /*******************************************/
+body {
+  background-color: rgb(90,219,189);
+}
+
 img{
   display: block;
   margin: 0 auto;
@@ -23,6 +27,10 @@ header {
   display: flex;
   flex-direction: column;
   align-items: center;
+}
+
+header input{
+  margin: 1%;
 }
 
 .containerCard {
